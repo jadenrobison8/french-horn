@@ -31,30 +31,33 @@
         Weather Dashboard
     </header>
     
-    <main>
-        <section id="search">
-            <div id="search-bar">
-                <h2>Search for a City: </h2>
-                <input type="text">
-                <button></button>
-            </div>
-
-            <div id="search-suggest">
-
-            </div>
-        </section>
-
-        <section id="city-weather">
-            <div>
-                <div id="today">
-
+    <main class="container">
+        <div class="row justify-content-between">
+            <section id="search" class="card col-4">
+                <div id="search-bar">
+                    <h3>Search for a City: </h2>
+                    <input type="text" id="user-input">
+                    <button></button>
                 </div>
-                <div id="forecast">
 
+                <div id="search-suggest">
+                    <ul id="suggestions" class="row">
+                    </ul>
                 </div>
-            </div>
-        </section>
+            </section>
 
+            <section id="city-weather" class="card col-4">
+                <div>
+                    <div id="today">
+                        <h2 id="city-name"></h2>
+
+                    </div>
+                    <div id="forecast">
+                        <h3>5 Day Forecast:</h3>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <!-- scripts go here -->
