@@ -1,6 +1,6 @@
 var userInputEl = document.querySelector("#user-input");
 var searchBtn = document.querySelector("#searchBtn");
-var suggestionsEl = document.querySelector("#suggestions");
+//var suggestionsEl = document.querySelector("#suggestions");
 var todayEl = document.querySelector("#today");
 var forecast = document.querySelector("#forecast");
 var apiKey = "95441f38975a122e879c7fc46334d497";
@@ -9,7 +9,7 @@ var apiKey = "95441f38975a122e879c7fc46334d497";
 var cityNameEL = document.querySelector(".cityName");
 var currentDateEl = document.querySelector(".currentDate");
 var weatherImgEl = document.querySelector(".weatherImg");
-var searchHistoryEl = document.querySelector(".history");
+var searchHistoryEl = document.querySelector("#suggestions");
 
 //weather elements
 var humidityEl = document.querySelector(".humidity");
@@ -22,7 +22,10 @@ var uvIndexEl = document.querySelector(".uvIndex");
 
 
 //search history
-
+var saveSearch = function() {
+    //save to local storage 
+    //append name and reference to the page
+};
 
 //search button click
 $(searchBtn).on("click", function(event) {
@@ -33,9 +36,15 @@ $(searchBtn).on("click", function(event) {
     }
     console.log("clicked search button");
     getWeather($(userInputEl).val());
-
 });
 
+//click search history
+$(searchHistoryEl).on("click", function(event) {
+    event.preventDefault();
+    
+    var city = event.target;
+    getWeather(city);
+});
 
 //function to generate city weather
 var getWeather = function(city) {
@@ -46,6 +55,7 @@ var getWeather = function(city) {
         method: "GET"
     })
     .then(function(data) {
+        console.log(data);
         let cityObj = {
             cityName: data.name,
             cityTemp: data.main.temp,
@@ -54,7 +64,7 @@ var getWeather = function(city) {
             cityUVIndex: data.coord,
             cityWeatherIcon: data.weather[0].icon
         }
-        console.log(cityObj);
+        displayForecast(data.name, data.id, data.sys.id);
         
         var lon = cityObj.cityUVIndex.lon;
         var lat = cityObj.cityUVIndex.lat;
@@ -65,38 +75,76 @@ var getWeather = function(city) {
             method: "GET"
         })
         .then(function(uvData) {
+            // save in search history to local storage saveSearch()
+            // call display 5 day forecast function   display5Day()
+            // weather icon display
+            //display searchHistory
+            if (JSON.parse(localStorage.getItem("searchHistory")) === null) {
+                var searchHistoryArr = [];
+                if (searchHistoryArr.indexOf(cityObj.cityName) === -1) {
+                    searchHistoryArr.push(cityObj.cityName);
+                    localStorage.setItem("searchHistory", JSON.stringify(searchHistoryArr));
+                    var weatherIcon = "https://openweathermap.org/img/w/" + cityObj.cityWeatherIcon + ".png";
+                    displayWeather(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, weatherIcon, uvData.value);
+                    displaySearch(cityObj.cityName);
+                } else {
+                    var weatherIcon = "https://openweathermap.org/img/w/" + cityObj.cityWeatherIcon + ".png";
+                }
+            } else {
+                var searchHistoryArr = JSON.parse(localStorage.getItem("searchHistory"));
+                if (searchHistoryArr.indexOf(cityObj.cityName) === -1) {
+                    searchHistoryArr.push(cityObj.cityName);
+                    localStorage.setItem("searchHistory", JSON.stringify(searchHistoryArr));
+                    var weatherIcon = "https://openweathermap.org/img/w/" + cityObj.cityWeatherIcon + ".png";
+                    displayWeather(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, weatherIcon, uvData.value);
+                    displaySearch(cityObj.cityName);
+                } else {
+                    var weatherIcon = "https://openweathermap.org/img/w/" + cityObj.cityWeatherIcon + ".png";
+                    displayWeather(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, weatherIcon, uvData.value);
+                }
+            }
             console.log(cityObj.cityName);
-            displayWeather(cityObj.cityName, cityObj.cityTemp, cityObj.cityHumidity, cityObj.cityWindSpeed, cityObj.cityWeatherIcon, uvData.value);
+            console.log(uvData.value);
         })
-
     });
 };
 
-//click button
-
-
-
-//getWeather();
+//display 5 day forecast function
+var displayForecast = function(city, state, country) {
+    var apiUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "," + state + "," + country + "&appid=" + apiKey + "&units=imperial";
+    $.ajax({
+        url: apiUrl,
+        method: "GET"
+    })
+    .then(function(response) {
+        console.log(response);
+        //for (var i = 0; i < response.list.length; i +=8) {
+        
+        //}
+    })
+};
 
 //display weather 
 var displayWeather = function(cityName, cityTemp, cityHumidity, cityWindSpeed, cityWeatherIcon, uvData) {
     //display on page
-    cityNameEL.text = cityName;
-    tempEl.text = cityTemp;
-    humidityEl.text = cityHumidity;
-    windSpeed.text = cityWindSpeed;
-    //weatherImgEl.attr("src", cityWeatherIcon);
-    uvIndexEl.text = "'UV Index:' + uvData";
+    cityNameEL.textContent = cityName;
+    tempEl.textContent = "Temperature: " + cityTemp + "°F";
+    humidityEl.textContent = "Humididty: " + cityHumidity +"%";
+    windSpeed.textContent = "Wind Speed: " + cityWindSpeed + " MPH";
+    weatherImgEl.setAttribute("src", cityWeatherIcon);
+    uvIndexEl.textContent = "UV Index: " + uvData;
 };
+
 
 var displaySearch = function() {
     //get from local storage
-
-    //show on page
+    var searchHistoryArr = JSON.parse(localStorage.getItem("searchHistory"));
+    for(let i = 0; i < searchHistoryArr.length; i++) {
+        var ListItem = $("<li>").attr("class", "historyEntry");
+        ListItem.text(searchHistoryArr[i]);
+        searchHistoryEl.prepend(ListItem);
+    }
 };
 
-//save search history
-
-//load search history
 
 
